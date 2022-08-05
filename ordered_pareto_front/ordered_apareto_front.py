@@ -1,5 +1,6 @@
 from typing import List, Optional, Iterator
 import matplotlib.pyplot as plt
+from matplotlib import colorbar
 import matplotlib as mpl
 from tqdm import tqdm
 import pandas as pd
@@ -97,7 +98,7 @@ def pareto_bool_iter(
     Iteratively assess the Pareto front for an array
     :param y: The input of shape n_samples x m_dimensionality
     :param strict: will not include points that are in between points on the
-    Pareto front.
+    Pareto front
     :param omax: An iterator of bools determining which objectives should be
     maximized. If None, all will be maximized.
     :return: An array of length n_samples. Each integer in the array indicates
@@ -156,7 +157,6 @@ def pareto_bool_iter(
         pbool_idx[pidx] = i
 
     return pbool_idx
-
 
 
 def calc_hypervolume_iter(
@@ -240,7 +240,6 @@ def plot_data():
     lower_edge = -100
     upper_edge = 500
     color_gradient = 'viridis'
-    zorder = 0
 
     # Create the plotting objects
     df = read_data()
@@ -329,12 +328,45 @@ def plot_data():
 
         # Plot hv improvement on each plot
         for ax in axes[1]:
-
             ax.step(
                 np.arange(len(hv)),
                 hv,
                 where='post',
+                lw=1,
+                color='lightgrey',
+                zorder=1,
             )
+        ax_1.step(
+            np.arange(len(hv)),
+            hv,
+            where='post',
+            lw=5,
+            color='#FFFFFF',
+            zorder=9,
+        )
+        ax_1.step(
+            np.arange(len(hv)),
+            hv,
+            where='post',
+            lw=1.5,
+            color='#333333',
+            zorder=10,
+        )
+
+    # Add color bar to plot
+    c_ax = figure.add_axes([0.14, 0.92, 0.1, 0.015])
+    bar = colorbar.ColorbarBase(
+        c_ax,
+        cmap=cmap,
+        orientation='horizontal',
+        ticks=[0, 1],
+    )
+
+    # Format bar axis
+    bar.set_ticklabels(['first', 'last'])
+    bar.outline.set_visible(False)
+    bar.set_label('sampling order', labelpad=-35)
+
 
     # Format each axes
     for i in range(2):
@@ -372,12 +404,11 @@ def plot_data():
                 ax.set_yticks([0, 0.5])
                 ax.set_yticklabels(['min', 'max'])
 
-
     # Save
     name = os.path.basename(__file__).split('.')[0]
     figure.set_dpi(300)
     figure.savefig(f'{name}.png')
-    # figure.savefig(f'{name}.svg')
+    figure.savefig(f'{name}.svg')
 
 
 if __name__ == '__main__':
