@@ -239,7 +239,8 @@ def plot_data():
     # Plotting constants
     lower_edge = -100
     upper_edge = 500
-    color_gradient = 'viridis'
+    color_gradient = 'viridis_r'
+    cmap = mpl.colormaps.get(color_gradient)
 
     # Create the plotting objects
     df = read_data()
@@ -275,10 +276,19 @@ def plot_data():
         # Generate the colors for the plot
         order = df_c['sample'].to_numpy()
         order_norm = order / max(order)
-        cmap = mpl.colormaps.get(color_gradient)
         color = cmap(order_norm)
         fill_color = np.copy(color)
-        fill_color[:, 3] = 0.85
+        fill_color[:, 3] = 0.75
+
+        ax_0.scatter(
+            y[:, 0],
+            y[:, 1],
+            s=20,
+            c='white',
+            edgecolor='white',
+            zorder=9,
+            linewidth=0,
+        )
 
         ax_0.scatter(
             y[:, 0],
@@ -286,7 +296,8 @@ def plot_data():
             s=20,
             c=fill_color,
             edgecolors=color,
-            zorder=10
+            zorder=10,
+            linewidth=1.5,
         )
 
         # Pareto front
@@ -366,7 +377,6 @@ def plot_data():
     bar.set_ticklabels(['first', 'last'])
     bar.outline.set_visible(False)
     bar.set_label('sampling order', labelpad=-35)
-
 
     # Format each axes
     for i in range(2):
