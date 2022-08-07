@@ -153,6 +153,7 @@ def run():
     # Create the plot
     figure: plt.Figure = plt.figure(
         figsize=(10, 5),
+        dpi=300,
     )
     ax: plt.Axes = figure.add_subplot()
 
