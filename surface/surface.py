@@ -32,20 +32,30 @@ def run():
     ax_0: plt.Axes = figure.add_subplot(1, 2, 1)
     ax_1: plt.Axes = figure.add_subplot(1, 2, 2)
 
+    # Formatting constants
+    data = (xi, xj, y_test)
+    kwargs = {
+        'cmap': 'plasma',
+        'levels': 10,
+    }
+
     # Plot the surfaces
     for ax in [ax_0, ax_1]:
         ax.contour(
-            xi,
-            xj,
-            y_test,
-            levels=10,
-            linewidths=2,
+            *data,
+            **kwargs,
+            linewidths=1.5,
+            linestyles=":",
+        )
+        ax.contour(
+            *data,
+            **kwargs,
+            linewidths=1.5,
+            alpha=0.5,
         )
         ax.contourf(
-            xi,
-            xj,
-            y_test,
-            levels=10,
+            *data,
+            **kwargs,
             alpha=0.2,
         )
 
