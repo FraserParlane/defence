@@ -1,3 +1,4 @@
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from typing import List
 import pandas as pd
@@ -15,8 +16,8 @@ class Element:
     """
     def __init__(
             self,
-            frac: float,
             color: str,
+            frac: float,
     ):
         self.name = self.__class__.__name__
         self.frac = frac
@@ -39,10 +40,13 @@ class Steel:
         self.name = name
         self.year = year
         self.elements = sorted(elements)
-        self.count = len(self.elements)
+        self.total_frac = sum([e.frac for e in self.elements])
 
     def __lt__(self, other):
         return self.year < other.year
+
+    def __len__(self):
+        return len(self.elements)
 
 
 class Steels:
@@ -55,13 +59,16 @@ class Steels:
     ):
         self.steels = sorted(steels)
 
+    def __len__(self):
+        return len(self.steels)
+
 
 # Define each element
 class C(Element):
     def __init__(self, frac: float):
         super().__init__(
             frac=frac,
-            color='#555555',
+            color='orange',
         )
 
 
@@ -69,7 +76,7 @@ class Cr(Element):
     def __init__(self, frac: float):
         super().__init__(
             frac=frac,
-            color='#333333',
+            color='blue',
         )
 
 
@@ -77,17 +84,17 @@ class Ni(Element):
     def __init__(self, frac: float):
         super().__init__(
             frac=frac,
-            color='#777777',
+            color='green',
         )
 
 
 # Define the steels
-steel = Steels(
+steel_list = Steels(
     steels=[
         Steel(
             year=1865,
             elements=[
-                C(frac=1),
+                C(frac=3),
                 Cr(frac=2),
             ]
         ),
@@ -95,6 +102,7 @@ steel = Steels(
             year=1888,
             elements=[
                 C(frac=1),
+                Ni(frac=1),
 
             ]
         )
@@ -112,7 +120,36 @@ def run():
     figure: plt.Figure = plt.figure()
     ax: plt.Axes = figure.add_subplot()
 
+    # For each steel
+    for i, i_steel in enumerate(steel_list.steels):
+
+        # Define the current base of the stack.
+        base = 0
+
+        # For each component
+        for j, element in enumerate(i_steel.elements):
+
+            # Add the element
+            rect = patches.Rectangle(
+                (i, base),
+                0.1,
+                element.frac,
+                facecolor=element.color,
+            )
+            ax.add_patch(rect)
+
+            # Update the base of the stack
+            base += element.frac
+
+    # Format
+    ax.set_xlim(-1, len(steel_list))
+    ax.set_ylim(-1, max([s.total_frac for s in steel_list.steels]) + 1)
+
     # Save
+    name = os.path.basename(__file__).split('.')[0]
+    figure.set_dpi(300)
+    figure.savefig(f'{name}.png')
+    figure.savefig(f'{name}.svg')
 
 
 if __name__ == '__main__':
