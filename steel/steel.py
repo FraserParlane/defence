@@ -1,7 +1,7 @@
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from typing import List
-import pandas as pd
+from colors import c
 import numpy as np
 import os
 
@@ -77,6 +77,36 @@ class Ni(Element):
         super().__init__()
 
 
+class V(Element):
+    def __init__(self):
+        super().__init__()
+
+
+class Mn(Element):
+    def __init__(self):
+        super().__init__()
+
+
+class P(Element):
+    def __init__(self):
+        super().__init__()
+
+
+class S(Element):
+    def __init__(self):
+        super().__init__()
+
+
+class Si(Element):
+    def __init__(self):
+        super().__init__()
+
+
+class Cu(Element):
+    def __init__(self):
+        super().__init__()
+
+
 # Define the steels
 steel_list = Steels(
     steels=[
@@ -91,6 +121,24 @@ steel_list = Steels(
         Steel(
             year=1900,
             elements=[C(), Ni(), Cr()]
+        ),
+        Steel(
+            year=1900,
+            elements=[C(), Cr(), V()]
+        ),
+        Steel(
+            year=2000,
+            elements=[Cr(), Ni(), Mn(), P(), S(), Si(), C()]
+        ),
+        Steel(
+            year=2001,
+            name='Cor-Ten ASTM A242',
+            elements=[C(), Si(), Mn(), P(), S(), Cr(), Cu(), Ni()]
+        ),
+Steel(
+            year=2001,
+            name='Cor-Ten ASTM A588',
+            elements=[C(), Si(), Mn(), P(), S(), Cr(), Cu(), V(), Ni()]
         )
     ]
 )
@@ -103,7 +151,9 @@ def run():
     """
 
     # Create the plot
-    figure: plt.Figure = plt.figure()
+    figure: plt.Figure = plt.figure(
+        figsize=(10, 5),
+    )
     ax: plt.Axes = figure.add_subplot()
 
     # Add the names of each element
@@ -114,8 +164,6 @@ def run():
             e,
             horizontalalignment='center',
         )
-
-
 
     # For each steel
     for i, i_steel in enumerate(steel_list.steels):
@@ -132,7 +180,10 @@ def run():
             # Add the point to the plot
             circle = patches.Circle(
                 (x, y),
-                radius=0.1,
+                radius=0.175,
+                facecolor=c.pink.i400,
+                edgecolor=c.pink.i700,
+                linewidth=2,
             )
             ax.add_patch(circle)
 
@@ -147,14 +198,18 @@ def run():
             ax.text(
                 -1,
                 y,
-                len(i_steel),
+                str(len(i_steel)),
                 verticalalignment='center',
             )
 
     # Format
-    ax.set_xlim(-3, len(steel_list.elements))
+    ax.set_xlim(-4, len(steel_list.elements))
     ax.set_ylim(-len(steel_list), 1)
     ax.set_aspect('equal')
+    for pos in ['left', 'right', 'top', 'bottom']:
+        ax.spines[pos].set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
 
     # Save
     name = os.path.basename(__file__).split('.')[0]
