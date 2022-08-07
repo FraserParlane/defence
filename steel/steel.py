@@ -14,17 +14,8 @@ class Element:
     """
     One element of a steel.
     """
-    def __init__(
-            self,
-            color: str,
-            frac: float,
-    ):
+    def __init__(self):
         self.name = self.__class__.__name__
-        self.frac = frac
-        self.color = color
-
-    def __lt__(self, other):
-        return self.frac < other.frac
 
 
 class Steel:
@@ -39,8 +30,7 @@ class Steel:
     ):
         self.name = name
         self.year = year
-        self.elements = sorted(elements)
-        self.total_frac = sum([e.frac for e in self.elements])
+        self.elements = elements
 
     def __lt__(self, other):
         return self.year < other.year
@@ -59,33 +49,32 @@ class Steels:
     ):
         self.steels = sorted(steels)
 
+        # Store each element in the order they appear
+        self.elements = []
+        for i_steel in self.steels:
+            for element in i_steel.elements:
+                if element.name not in self.elements:
+                    self.elements.append(element.name)
+        self.elements = np.array(self.elements)
+
     def __len__(self):
         return len(self.steels)
 
 
 # Define each element
 class C(Element):
-    def __init__(self, frac: float):
-        super().__init__(
-            frac=frac,
-            color='orange',
-        )
+    def __init__(self):
+        super().__init__()
 
 
 class Cr(Element):
-    def __init__(self, frac: float):
-        super().__init__(
-            frac=frac,
-            color='blue',
-        )
+    def __init__(self):
+        super().__init__()
 
 
 class Ni(Element):
-    def __init__(self, frac: float):
-        super().__init__(
-            frac=frac,
-            color='green',
-        )
+    def __init__(self):
+        super().__init__()
 
 
 # Define the steels
@@ -93,18 +82,15 @@ steel_list = Steels(
     steels=[
         Steel(
             year=1865,
-            elements=[
-                C(frac=3),
-                Cr(frac=2),
-            ]
+            elements=[C(), Cr()]
         ),
         Steel(
             year=1888,
-            elements=[
-                C(frac=1),
-                Ni(frac=1),
-
-            ]
+            elements=[C(), Ni()]
+        ),
+        Steel(
+            year=1900,
+            elements=[C(), Ni(), Cr()]
         )
     ]
 )
@@ -120,30 +106,55 @@ def run():
     figure: plt.Figure = plt.figure()
     ax: plt.Axes = figure.add_subplot()
 
+    # Add the names of each element
+    for i, e in enumerate(steel_list.elements):
+        ax.text(
+            i,
+            0.5,
+            e,
+            horizontalalignment='center',
+        )
+
+
+
     # For each steel
     for i, i_steel in enumerate(steel_list.steels):
 
-        # Define the current base of the stack.
-        base = 0
+        # Define the y position for the steel
+        y = -i
 
         # For each component
         for j, element in enumerate(i_steel.elements):
 
-            # Add the element
-            rect = patches.Rectangle(
-                (i, base),
-                0.1,
-                element.frac,
-                facecolor=element.color,
-            )
-            ax.add_patch(rect)
+            # Get x position of element
+            x = np.where(steel_list.elements == element.name)[0][0]
 
-            # Update the base of the stack
-            base += element.frac
+            # Add the point to the plot
+            circle = patches.Circle(
+                (x, y),
+                radius=0.1,
+            )
+            ax.add_patch(circle)
+
+            # Add name, year, components
+            ax.text(
+                -1.5,
+                y,
+                f'{i_steel.name} ({i_steel.year})',
+                verticalalignment='center',
+                horizontalalignment='right',
+            )
+            ax.text(
+                -1,
+                y,
+                len(i_steel),
+                verticalalignment='center',
+            )
 
     # Format
-    ax.set_xlim(-1, len(steel_list))
-    ax.set_ylim(-1, max([s.total_frac for s in steel_list.steels]) + 1)
+    ax.set_xlim(-3, len(steel_list.elements))
+    ax.set_ylim(-len(steel_list), 1)
+    ax.set_aspect('equal')
 
     # Save
     name = os.path.basename(__file__).split('.')[0]
